@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jiao PDF Reader</title>
+  <link rel="stylesheet" href="viewer.css">
+</head>
+<body>
+  <header class="toolbar">
+    <div class="brand">
+      <img class="brand-logo" src="icons/icon32.png" alt="">
+      <div class="brand-text">Jiao PDF Reader</div>
+    </div>
+
+    <div class="toolbar-actions">
+      <label class="file-button">
+        <input id="fileInput" type="file" accept="application/pdf,.pdf">
+        <span>打开 PDF</span>
+      </label>
+
+      <div id="pageReadout" class="page-readout">0 / 0</div>
+
+      <div class="zoom">
+        <button id="zoomOut" class="icon-button" type="button" title="缩小">-</button>
+        <span id="zoomLabel" class="zoom-label">120%</span>
+        <button id="zoomIn" class="icon-button" type="button" title="放大">+</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="reader" class="reader">
+    <section id="emptyState" class="empty-state">
+      <img class="empty-logo" src="icons/icon128.png" alt="">
+      <button id="emptyOpenButton" class="primary-button" type="button">打开 PDF</button>
+    </section>
+
+    <section id="pdfStage" class="pdf-stage" hidden>
+      <div id="pages" class="pages"></div>
+    </section>
+  </main>
+
+  <div id="readerStatus" class="reader-status"></div>
+  <script type="module" src="viewer.js"></script>
+</body>
+</html>

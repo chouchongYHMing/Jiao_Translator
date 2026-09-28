@@ -1,0 +1,385 @@
+:root {
+  color-scheme: dark;
+  --toolbar-height: 56px;
+  --chrome: #272a2f;
+  --chrome-raised: #32363d;
+  --chrome-hover: #3b4048;
+  --canvas: #202124;
+  --page-shadow: rgba(0, 0, 0, 0.46);
+  --border: #454b55;
+  --text: #f1f3f4;
+  --muted: #bdc1c6;
+  --accent: #54b399;
+  --accent-strong: #76c7b3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  min-height: var(--toolbar-height);
+  padding: 8px 14px;
+  border-bottom: 1px solid #1d1f23;
+  background: rgba(39, 42, 47, 0.97);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.26);
+  backdrop-filter: blur(12px);
+}
+
+.brand,
+.toolbar-actions,
+.zoom,
+.file-button {
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  min-width: 190px;
+  gap: 10px;
+}
+
+.brand-logo {
+  width: 30px;
+  height: 30px;
+}
+
+.brand-text {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.toolbar-actions {
+  flex: 1;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.file-button,
+.primary-button {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--chrome-raised);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 620;
+  cursor: pointer;
+}
+
+.file-button {
+  min-height: 34px;
+  padding: 0 12px;
+}
+
+.file-button:hover,
+.primary-button:hover {
+  border-color: #5b6470;
+  background: var(--chrome-hover);
+}
+
+.file-button input {
+  display: none;
+}
+
+.primary-button {
+  min-height: 38px;
+  padding: 0 16px;
+}
+
+.page-readout,
+.zoom {
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #22252a;
+  color: var(--muted);
+}
+
+.page-readout {
+  min-width: 82px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.zoom {
+  display: flex;
+  overflow: hidden;
+}
+
+.icon-button {
+  width: 36px;
+  height: 32px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.icon-button:last-child {
+  border-right: 0;
+  border-left: 1px solid var(--border);
+}
+
+.icon-button:hover {
+  background: var(--chrome-hover);
+}
+
+.icon-button:disabled {
+  color: #70757a;
+  cursor: default;
+}
+
+.zoom-label {
+  min-width: 56px;
+  padding: 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+  line-height: 32px;
+  white-space: nowrap;
+}
+
+.reader {
+  min-height: calc(100vh - var(--toolbar-height));
+}
+
+.empty-state {
+  min-height: calc(100vh - var(--toolbar-height));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.empty-logo {
+  width: 96px;
+  height: 96px;
+  opacity: 0.72;
+}
+
+.pdf-stage {
+  min-height: calc(100vh - var(--toolbar-height));
+  padding: 18px 0 64px;
+  overflow-x: auto;
+}
+
+.pages {
+  width: max-content;
+  min-width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.page-shell {
+  position: relative;
+  padding: 0;
+}
+
+.page-number {
+  position: absolute;
+  top: 8px;
+  right: -54px;
+  min-width: 38px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(16, 18, 22, 0.74);
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.pdf-page {
+  --user-unit: 1;
+  --scale-factor: 1;
+  --total-scale-factor: calc(var(--scale-factor) * var(--user-unit));
+  position: relative;
+  background: #ffffff;
+  box-shadow: 0 8px 30px var(--page-shadow);
+  overflow: visible;
+}
+
+.page-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  color: #4b5563;
+  font-size: 13px;
+}
+
+.pdf-page.is-rendered .page-loading {
+  display: none;
+}
+
+.pdf-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.textLayer {
+  color-scheme: only light;
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  opacity: 1;
+  line-height: 1;
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-align: initial;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  caret-color: CanvasText;
+  z-index: 1;
+}
+
+.textLayer :is(span, br) {
+  position: absolute;
+  color: transparent;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  user-select: text;
+}
+
+.textLayer {
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+
+.textLayer > :not(.markedContent),
+.textLayer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  --font-height: 0;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  --scale-x: 1;
+  --rotate: 0deg;
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+
+.textLayer .markedContent {
+  display: contents;
+}
+
+.textLayer span[role="img"] {
+  user-select: none;
+  cursor: default;
+}
+
+.textLayer ::selection {
+  background: rgb(46 144 250 / 0.28);
+  color: transparent;
+}
+
+.textLayer br::selection {
+  background: transparent;
+}
+
+.textLayer .endOfContent {
+  display: block;
+  position: absolute;
+  inset: 100% 0 0;
+  z-index: 0;
+  cursor: default;
+  user-select: none;
+}
+
+.textLayer.selecting .endOfContent {
+  top: 0;
+}
+
+#jiao-reader-bubble {
+  position: fixed;
+  z-index: 100;
+  max-width: 460px;
+  padding: 10px 12px;
+  border: 1px solid #353b44;
+  border-radius: 8px;
+  background: #111418;
+  color: #f8fafc;
+  font-size: 14px;
+  line-height: 1.55;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.42);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.reader-status {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 30;
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 8px 10px;
+  border: 1px solid #3f4651;
+  border-radius: 8px;
+  background: rgba(34, 37, 42, 0.96);
+  color: var(--muted);
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.26);
+}
+
+.reader-status:empty {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  .toolbar-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .page-number {
+    display: none;
+  }
+}
