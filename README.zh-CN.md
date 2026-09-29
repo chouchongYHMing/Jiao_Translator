@@ -78,31 +78,50 @@ Jiao_Translator/
 
 [https://ollama.com/download](https://ollama.com/download)
 
-macOS 用户可以从下载页安装 Ollama App。Ollama 官方页面目前标注 macOS 需要 macOS 14 Sonoma 或更新版本。
+### macOS
 
-Linux 用户可以使用官方安装命令：
+从 Ollama 下载页安装 Ollama App。Ollama 官方页面目前标注 macOS 需要 macOS 14 Sonoma 或更新版本。
+
+安装后先打开一次 Ollama App，然后检查：
+
+```bash
+ollama --version
+curl http://127.0.0.1:11434/api/version
+```
+
+### Linux
+
+使用 Ollama 官方安装命令：
 
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 ```
 
-Windows 用户请从同一下载页下载安装程序。
-
-安装后检查 Ollama 是否可用：
+然后检查：
 
 ```bash
 ollama --version
-```
-
-检查本地 Ollama API 是否正在运行：
-
-```bash
 curl http://127.0.0.1:11434/api/version
 ```
 
-如果 API 没有运行，打开 Ollama App，或手动启动服务：
+如果服务没有运行，手动启动：
 
 ```bash
+ollama serve
+```
+
+### Windows
+
+从 Ollama 下载页下载 Windows 安装程序并安装。安装后打开 PowerShell，检查：
+
+```powershell
+ollama --version
+curl.exe http://127.0.0.1:11434/api/version
+```
+
+如果 API 没有运行，从开始菜单打开 Ollama App，或执行：
+
+```powershell
 ollama serve
 ```
 
@@ -133,18 +152,42 @@ Ollama 模型页面：
 
 ## 启动本地后端
 
-在项目根目录执行：
+在项目根目录中，根据你的操作系统选择对应命令。
+
+### macOS / Linux
 
 ```bash
 cd server
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-启动 FastAPI 后端：
+### Windows PowerShell
 
-```bash
+```powershell
+cd server
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+如果 PowerShell 阻止激活虚拟环境，在同一个 PowerShell 窗口中先执行：
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+### Windows 命令提示符
+
+```bat
+cd server
+py -3 -m venv .venv
+.\.venv\Scripts\activate.bat
+pip install -r requirements.txt
 uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -153,6 +196,8 @@ uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```bash
 curl -s http://127.0.0.1:8000/health
 ```
+
+在 Windows PowerShell 中，如果 `curl` 被当作 PowerShell 别名处理，请改用 `curl.exe`。
 
 期望返回：
 
@@ -167,6 +212,8 @@ curl -s http://127.0.0.1:8000/translate \
   -H "Content-Type: application/json" \
   -d '{"text":"This paper proposes a novel framework for efficient retrieval-augmented generation."}'
 ```
+
+在 Windows PowerShell 中，同样可以把命令里的 `curl` 换成 `curl.exe`。
 
 期望返回类似：
 
@@ -280,11 +327,21 @@ extension/pdfjs/LICENSE
 
 ### `curl http://127.0.0.1:8000/health` 失败
 
-说明后端没有运行。启动后端：
+说明后端没有运行。按你的系统启动后端。
+
+macOS / Linux：
 
 ```bash
 cd server
 source .venv/bin/activate
+uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Windows PowerShell：
+
+```powershell
+cd server
+.\.venv\Scripts\Activate.ps1
 uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -341,11 +398,19 @@ Qwen 模型由 Ollama 下载和管理，不应该放进这个仓库。
 
 ## 手动打包扩展
 
-如果要在 GitHub Releases 中发布扩展压缩包，可以只打包 `extension` 目录：
+如果要在 GitHub Releases 中发布扩展压缩包，只需要打包 `extension` 目录。
+
+macOS / Linux：
 
 ```bash
 zip -r jiao-translator-extension-v0.2.0.zip extension \
   -x "*.DS_Store"
+```
+
+Windows PowerShell：
+
+```powershell
+Compress-Archive -Path extension -DestinationPath jiao-translator-extension-v0.2.0.zip -Force
 ```
 
 用户仍然需要单独安装 Ollama、拉取模型，并启动本地后端。

@@ -78,31 +78,50 @@ Descarga Ollama desde la web oficial:
 
 [https://ollama.com/download](https://ollama.com/download)
 
-En macOS, descarga e instala la aplicación desde la página oficial de Ollama. La página oficial indica actualmente que se requiere macOS 14 Sonoma o una versión posterior.
+### macOS
 
-En Linux, el comando oficial de instalación es:
+Descarga e instala la aplicación desde la página oficial de Ollama. La página oficial indica actualmente que se requiere macOS 14 Sonoma o una versión posterior.
+
+Después de instalar, abre la aplicación de Ollama una vez y comprueba:
+
+```bash
+ollama --version
+curl http://127.0.0.1:11434/api/version
+```
+
+### Linux
+
+Usa el comando oficial de instalación:
 
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 ```
 
-En Windows, usa el instalador disponible en la misma página de descarga.
-
-Después de instalar, comprueba que Ollama está disponible:
+Luego comprueba:
 
 ```bash
 ollama --version
-```
-
-Comprueba que la API local de Ollama está funcionando:
-
-```bash
 curl http://127.0.0.1:11434/api/version
 ```
 
-Si la API no está en ejecución, abre la aplicación de Ollama o inicia el servicio manualmente:
+Si el servicio no está en ejecución, inícialo manualmente:
 
 ```bash
+ollama serve
+```
+
+### Windows
+
+Descarga y ejecuta el instalador de Windows desde la página oficial. Después de instalar, abre PowerShell y comprueba:
+
+```powershell
+ollama --version
+curl.exe http://127.0.0.1:11434/api/version
+```
+
+Si la API no está en ejecución, abre la aplicación de Ollama desde el menú Inicio o ejecuta:
+
+```powershell
 ollama serve
 ```
 
@@ -133,18 +152,42 @@ Página del modelo en Ollama:
 
 ## Iniciar el backend local
 
-Desde la raíz del proyecto:
+Desde la raíz del proyecto, usa los comandos correspondientes a tu sistema operativo.
+
+### macOS / Linux
 
 ```bash
 cd server
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Inicia el backend con FastAPI:
+### Windows PowerShell
 
-```bash
+```powershell
+cd server
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Si PowerShell bloquea la activación del entorno virtual, ejecuta esto en la misma ventana de PowerShell y vuelve a activar:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+### Símbolo del sistema de Windows
+
+```bat
+cd server
+py -3 -m venv .venv
+.\.venv\Scripts\activate.bat
+pip install -r requirements.txt
 uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -153,6 +196,8 @@ Abre otra terminal y prueba el endpoint de salud:
 ```bash
 curl -s http://127.0.0.1:8000/health
 ```
+
+En Windows PowerShell, usa `curl.exe` si `curl` se comporta como un alias de PowerShell.
 
 Respuesta esperada:
 
@@ -167,6 +212,8 @@ curl -s http://127.0.0.1:8000/translate \
   -H "Content-Type: application/json" \
   -d '{"text":"This paper proposes a novel framework for efficient retrieval-augmented generation."}'
 ```
+
+En Windows PowerShell, el mismo comando funciona usando `curl.exe` en lugar de `curl`.
 
 Respuesta esperada:
 
@@ -280,11 +327,21 @@ extension/pdfjs/LICENSE
 
 ### Falla `curl http://127.0.0.1:8000/health`
 
-El backend no está en ejecución. Inícialo:
+El backend no está en ejecución. Inícialo con el comando correspondiente a tu sistema.
+
+macOS / Linux:
 
 ```bash
 cd server
 source .venv/bin/activate
+uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Windows PowerShell:
+
+```powershell
+cd server
+.\.venv\Scripts\Activate.ps1
 uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -341,11 +398,19 @@ El modelo Qwen se descarga y gestiona con Ollama, no con este repositorio.
 
 ## Empaquetado manual
 
-Para GitHub Releases, puedes comprimir solo la carpeta de la extensión:
+Para GitHub Releases, empaqueta solo la carpeta `extension`.
+
+macOS / Linux:
 
 ```bash
 zip -r jiao-translator-extension-v0.2.0.zip extension \
   -x "*.DS_Store"
+```
+
+Windows PowerShell:
+
+```powershell
+Compress-Archive -Path extension -DestinationPath jiao-translator-extension-v0.2.0.zip -Force
 ```
 
 Los usuarios seguirán necesitando instalar Ollama, descargar el modelo e iniciar el backend local.

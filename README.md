@@ -78,31 +78,50 @@ Download Ollama from the official website:
 
 [https://ollama.com/download](https://ollama.com/download)
 
-On macOS, download and install the app from the Ollama download page. Ollama's official page currently lists macOS 14 Sonoma or later as the requirement.
+### macOS
 
-On Linux, Ollama's official install command is:
+Download and install the Ollama app from the official download page. Ollama's official page currently lists macOS 14 Sonoma or later as the requirement.
+
+After installation, open the Ollama app once, then check:
+
+```bash
+ollama --version
+curl http://127.0.0.1:11434/api/version
+```
+
+### Linux
+
+Use Ollama's official install command:
 
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 ```
 
-On Windows, use the Windows installer from the same download page.
-
-After installation, check that Ollama is available:
+Then check:
 
 ```bash
 ollama --version
-```
-
-Check that the local Ollama API is running:
-
-```bash
 curl http://127.0.0.1:11434/api/version
 ```
 
-If the API is not running, open the Ollama app or start the service manually:
+If the service is not running, start it manually:
 
 ```bash
+ollama serve
+```
+
+### Windows
+
+Download and run the Windows installer from the official download page. After installation, open PowerShell and check:
+
+```powershell
+ollama --version
+curl.exe http://127.0.0.1:11434/api/version
+```
+
+If the API is not running, open the Ollama app from the Start menu, or run:
+
+```powershell
 ollama serve
 ```
 
@@ -133,18 +152,42 @@ The Ollama model page is here:
 
 ## Start The Local Backend
 
-From the project root:
+From the project root, use the commands for your operating system.
+
+### macOS / Linux
 
 ```bash
 cd server
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Start the FastAPI backend:
+### Windows PowerShell
 
-```bash
+```powershell
+cd server
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+If PowerShell blocks virtual environment activation, run this in the same PowerShell window and then activate again:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+### Windows Command Prompt
+
+```bat
+cd server
+py -3 -m venv .venv
+.\.venv\Scripts\activate.bat
+pip install -r requirements.txt
 uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -153,6 +196,8 @@ Open another terminal and test the health endpoint:
 ```bash
 curl -s http://127.0.0.1:8000/health
 ```
+
+On Windows PowerShell, use `curl.exe` if `curl` behaves like a PowerShell alias.
 
 Expected response:
 
@@ -167,6 +212,8 @@ curl -s http://127.0.0.1:8000/translate \
   -H "Content-Type: application/json" \
   -d '{"text":"This paper proposes a novel framework for efficient retrieval-augmented generation."}'
 ```
+
+On Windows PowerShell, the same command works with `curl.exe` instead of `curl`.
 
 Expected response:
 
@@ -280,11 +327,21 @@ extension/pdfjs/LICENSE
 
 ### `curl http://127.0.0.1:8000/health` fails
 
-The backend is not running. Start it:
+The backend is not running. Start it with the command for your system.
+
+macOS / Linux:
 
 ```bash
 cd server
 source .venv/bin/activate
+uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Windows PowerShell:
+
+```powershell
+cd server
+.\.venv\Scripts\Activate.ps1
 uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -341,11 +398,19 @@ The Qwen model is downloaded and managed by Ollama, not by this repository.
 
 ## Packaging For Manual Distribution
 
-For GitHub releases, you can zip only the extension folder:
+For GitHub releases, package only the `extension` folder.
+
+macOS / Linux:
 
 ```bash
 zip -r jiao-translator-extension-v0.2.0.zip extension \
   -x "*.DS_Store"
+```
+
+Windows PowerShell:
+
+```powershell
+Compress-Archive -Path extension -DestinationPath jiao-translator-extension-v0.2.0.zip -Force
 ```
 
 Users still need to install Ollama, pull the model, and start the backend.
