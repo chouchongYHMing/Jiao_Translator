@@ -2,20 +2,173 @@
 
 **Idioma:** [English](README.md) | [简体中文](README.zh-CN.md) | Español | [Català](README.ca.md)
 
-Jiao Translator es una extensión de Chrome local-first para leer artículos académicos y traducir texto seleccionado. Permite seleccionar texto en páginas web normales o en el lector integrado Jiao PDF Reader, enviar el texto seleccionado a un backend local con FastAPI y traducirlo con un modelo Qwen ejecutado localmente mediante Ollama.
+**Selecciona texto en inglés en una web o un PDF para ver su traducción al chino.** Jiao Translator es una extensión de Chrome para leer artículos académicos. Por defecto, traduce en tu propio ordenador y no requiere una cuenta.
 
-El proyecto está diseñado para privacidad y estabilidad: por defecto, el texto seleccionado se procesa en tu propio ordenador sin usar una API de traducción en la nube.
+Versión: **0.3.0** · Traducción predeterminada: **chino simplificado** · Inicio con un clic: **Windows + Chrome**
 
-## Funciones
+[Funciones](#features) · [Instalación](#install) · [Uso diario](#usage) · [Problemas frecuentes](#help) · [Detalles del proyecto](#details)
 
-- Traducción de texto seleccionado en páginas web normales.
-- Apertura de PDF con el lector integrado Jiao PDF Reader.
-- Lectura de PDF con desplazamiento vertical, similar al visor PDF nativo de Chrome.
-- Traducción de texto seleccionado dentro del PDF Reader.
-- Activación o desactivación de la traducción desde el popup de la extensión.
-- Traducción local con Ollama y `qwen3:4b-instruct`.
+<a id="features"></a>
 
-## Arquitectura
+## Qué puedes hacer
+
+| Tarea | Cómo funciona |
+| --- | --- |
+| Leer páginas en inglés | Selecciona un fragmento para ver la traducción en una ventana flotante |
+| Leer PDF locales | Abre un archivo en el lector integrado, desplázate y selecciona texto para traducir |
+| Pausar la traducción | Desmarca “启用划词翻译” en el popup de la extensión |
+| Iniciar el servicio | En Windows, configura el inicio una vez y después pulsa “启动本地后端” |
+
+Ollama y el backend local deben estar funcionando para traducir. La instalación inicial requiere internet para descargar software, dependencias y el modelo. Por defecto, la traducción no utiliza una API en la nube. Los controles de la extensión están actualmente en chino; esta guía explica sus etiquetas.
+
+<a id="install"></a>
+
+## Instalación inicial
+
+Completa los pasos 1–4 para empezar a traducir. En Windows, el paso 5 permite activar el inicio con un clic.
+
+### 1. Prepara el software y descarga el proyecto
+
+| Software | Para qué sirve |
+| --- | --- |
+| Google Chrome | Instalar y usar la extensión |
+| [Python 3.10+](https://www.python.org/downloads/) | Ejecutar el servicio local de traducción |
+| [Ollama](https://ollama.com/download) | Ejecutar el modelo en tu ordenador |
+
+Abre el [repositorio de GitHub](https://github.com/chouchongYHMing/Jiao_Translator), pulsa **Code → Download ZIP** y descomprímelo en una ubicación que vayas a conservar. La carpeta que contiene `server`, `extension` y `native-host` es la **raíz del proyecto** mencionada en esta guía.
+
+Si utilizas Git, también puedes ejecutar:
+
+```bash
+git clone https://github.com/chouchongYHMing/Jiao_Translator.git
+```
+
+### 2. Descarga el modelo de traducción
+
+Instala y abre Ollama. Después abre una nueva terminal y ejecuta:
+
+```bash
+ollama pull qwen3:4b-instruct
+```
+
+Espera a que termine la descarga y mantén Ollama en ejecución. Si no se puede conectar, abre la aplicación de Ollama o ejecuta `ollama serve` en otra terminal y vuelve a intentarlo.
+
+### 3. Instala e inicia el backend local
+
+Abre una terminal en la **raíz del proyecto**. Despliega las instrucciones de tu sistema y ejecútalas en orden. Crean un entorno de Python independiente, instalan las dependencias e inician el servicio.
+
+<details open>
+<summary>Windows (PowerShell)</summary>
+
+```powershell
+cd server
+py -3 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+</details>
+
+<details>
+<summary>macOS / Linux</summary>
+
+```bash
+cd server
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+</details>
+
+**Mantén esta terminal abierta.** Visita la [página de estado del backend](http://127.0.0.1:8000/health) en el navegador. Esta respuesta indica que está funcionando:
+
+```json
+{"ok":true,"model":"qwen3:4b-instruct"}
+```
+
+### 4. Carga la extensión en Chrome
+
+1. Introduce `chrome://extensions` en la barra de direcciones de Chrome.
+2. Activa el **Modo de desarrollador** en la esquina superior derecha.
+3. Pulsa **Cargar descomprimida** (Load unpacked) y selecciona la carpeta **`extension`** del proyecto.
+4. Fija **Jiao Translator** desde el menú de extensiones de Chrome.
+5. Abre una página normal en inglés y selecciona una frase para comprobar que aparece la traducción.
+
+Para los PDF, utiliza “打开 PDF 阅读器” (Abrir lector PDF) en el popup. Las páginas internas de Chrome, como `chrome://extensions`, no admiten traducción de texto seleccionado.
+
+### 5. Activa el inicio con un clic (opcional, solo Windows / Chrome)
+
+Configúralo una vez para iniciar el backend desde el botón de la extensión en los usos posteriores.
+
+1. Busca Jiao Translator en `chrome://extensions` y copia su **ID de 32 caracteres**.
+2. **Abre otra ventana de PowerShell en la raíz del proyecto.** Sustituye `YOUR_32_CHARACTER_EXTENSION_ID` entre las comillas por tu ID y ejecuta:
+
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File .\native-host\windows\install.ps1 -ExtensionId "YOUR_32_CHARACTER_EXTENSION_ID"
+```
+
+3. Vuelve a `chrome://extensions` y pulsa **Recargar** en la tarjeta de Jiao Translator.
+4. Cuando el backend esté detenido, pulsa **启动本地后端** (Iniciar backend local). Se abrirá una terminal, se activará el entorno virtual y se iniciará el servicio.
+
+El botón está desactivado mientras el backend está funcionando. Ollama también debe estar en ejecución. Repite el instalador si mueves el proyecto o cambia el ID de la extensión.
+
+<a id="usage"></a>
+
+## Uso diario
+
+Después de instalar: **abre Ollama → inicia el backend → lee y traduce**. No es necesario volver a crear el entorno virtual ni descargar el modelo cada vez.
+
+En Windows, utiliza el botón “启动本地后端” si ya lo has configurado. En los demás casos, abre una nueva terminal en la raíz del proyecto y ejecuta:
+
+<details>
+<summary>Inicio manual (Windows / macOS / Linux)</summary>
+
+Windows PowerShell:
+
+```powershell
+cd server
+.\.venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+macOS / Linux:
+
+```bash
+cd server
+.venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+</details>
+
+- **Páginas web:** selecciona un fragmento corto y espera la traducción.
+- **PDF:** pulsa el icono de la extensión → 打开 PDF 阅读器 (Abrir lector PDF) → 打开 PDF (Abrir PDF) → elige un archivo local y selecciona texto.
+- **Pausar la traducción:** desmarca 启用划词翻译 (Activar traducción de texto seleccionado).
+- **Detener el backend:** pulsa `Ctrl+C` en su terminal.
+
+<a id="help"></a>
+
+## Problemas frecuentes
+
+| Problema | Solución |
+| --- | --- |
+| No se encuentra `py` o `python3` | Comprueba que Python esté instalado y abre una nueva terminal |
+| No se abre la página de estado | Revisa los errores en la terminal del backend y sigue los pasos de inicio diario |
+| El backend funciona, pero falla la traducción | Mantén Ollama funcionando y comprueba con `ollama list` que existe `qwen3:4b-instruct` |
+| El popup indica que falta el componente de inicio | Completa el paso 5 con el ID actual y recarga la extensión |
+| Falta `.venv` o Uvicorn | Repite el paso 3 e instala las dependencias en `server/.venv` |
+| El puerto 8000 está ocupado | Comprueba si ya hay un backend abierto; detén otra aplicación que ocupe el puerto si es necesario |
+| No traduce en el visor PDF de Chrome | Abre el archivo en Jiao PDF Reader |
+| No aparecen los cambios tras actualizar | Recarga la extensión en `chrome://extensions`, refresca la página y vuelve a abrir el lector PDF |
+
+La página de estado solo confirma que el backend es accesible. Para traducir también hacen falta Ollama y el modelo descargado.
+
+<a id="details"></a>
+
+## Detalles del proyecto
+
+Estas secciones explican el funcionamiento, el flujo de datos y el desarrollo para quienes quieran conocer o modificar el proyecto.
+
+### Arquitectura
 
 ```text
 Página de Chrome o Jiao PDF Reader
@@ -33,7 +186,7 @@ http://127.0.0.1:11434/api/chat
 Ollama + qwen3:4b-instruct
 ```
 
-## Estructura del proyecto
+### Estructura del proyecto
 
 ```text
 Jiao_Translator/
@@ -47,6 +200,11 @@ Jiao_Translator/
   server/
     main.py
     requirements.txt
+
+  native-host/windows/
+    Host.cs
+    install.ps1
+    launch-server.cmd
 
   extension/
     manifest.json
@@ -63,227 +221,7 @@ Jiao_Translator/
     pdfjs/
 ```
 
-## Requisitos
-
-- Google Chrome u otro navegador basado en Chromium
-- Python 3.10+
-- Ollama
-- `qwen3:4b-instruct` descargado con Ollama
-
-La versión actual de la extensión es `0.2.0`.
-
-## Instalar Ollama
-
-Descarga Ollama desde la web oficial:
-
-[https://ollama.com/download](https://ollama.com/download)
-
-### macOS
-
-Descarga e instala la aplicación desde la página oficial de Ollama. La página oficial indica actualmente que se requiere macOS 14 Sonoma o una versión posterior.
-
-Después de instalar, abre la aplicación de Ollama una vez y comprueba:
-
-```bash
-ollama --version
-curl http://127.0.0.1:11434/api/version
-```
-
-### Linux
-
-Usa el comando oficial de instalación:
-
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-```
-
-Luego comprueba:
-
-```bash
-ollama --version
-curl http://127.0.0.1:11434/api/version
-```
-
-Si el servicio no está en ejecución, inícialo manualmente:
-
-```bash
-ollama serve
-```
-
-### Windows
-
-Descarga y ejecuta el instalador de Windows desde la página oficial. Después de instalar, abre PowerShell y comprueba:
-
-```powershell
-ollama --version
-curl.exe http://127.0.0.1:11434/api/version
-```
-
-Si la API no está en ejecución, abre la aplicación de Ollama desde el menú Inicio o ejecuta:
-
-```powershell
-ollama serve
-```
-
-## Descargar el modelo Qwen
-
-Este proyecto usa la versión instruct sin thinking:
-
-```bash
-ollama pull qwen3:4b-instruct
-```
-
-Puedes probar el modelo directamente:
-
-```bash
-ollama run qwen3:4b-instruct
-```
-
-Luego escribe:
-
-```text
-请将以下英文翻译成简体中文，只输出译文，不要解释：
-This paper proposes a novel framework for efficient retrieval-augmented generation.
-```
-
-Página del modelo en Ollama:
-
-[https://ollama.com/library/qwen3:4b-instruct](https://ollama.com/library/qwen3:4b-instruct)
-
-## Iniciar el backend local
-
-Desde la raíz del proyecto, usa los comandos correspondientes a tu sistema operativo.
-
-### macOS / Linux
-
-```bash
-cd server
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-```
-
-### Windows PowerShell
-
-```powershell
-cd server
-py -3 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-```
-
-Si PowerShell bloquea la activación del entorno virtual, ejecuta esto en la misma ventana de PowerShell y vuelve a activar:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\.venv\Scripts\Activate.ps1
-```
-
-### Símbolo del sistema de Windows
-
-```bat
-cd server
-py -3 -m venv .venv
-.\.venv\Scripts\activate.bat
-pip install -r requirements.txt
-uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-```
-
-Abre otra terminal y prueba el endpoint de salud:
-
-```bash
-curl -s http://127.0.0.1:8000/health
-```
-
-En Windows PowerShell, usa `curl.exe` si `curl` se comporta como un alias de PowerShell.
-
-Respuesta esperada:
-
-```json
-{"ok":true,"model":"qwen3:4b-instruct"}
-```
-
-Prueba la traducción:
-
-```bash
-curl -s http://127.0.0.1:8000/translate \
-  -H "Content-Type: application/json" \
-  -d '{"text":"This paper proposes a novel framework for efficient retrieval-augmented generation."}'
-```
-
-En Windows PowerShell, el mismo comando funciona usando `curl.exe` en lugar de `curl`.
-
-Respuesta esperada:
-
-```json
-{"translation":"本文提出了一种用于高效检索增强生成的新型框架。"}
-```
-
-Mantén abierta esta terminal del backend mientras uses la extensión de Chrome.
-
-## Cargar la extensión en Chrome
-
-La documentación oficial de Chrome llama a esto cargar una extensión sin empaquetar en modo desarrollador.
-
-1. Abre Chrome.
-2. Escribe esta dirección:
-
-```text
-chrome://extensions
-```
-
-3. Activa `Developer mode` en la esquina superior derecha.
-4. Haz clic en `Load unpacked`.
-5. Selecciona la carpeta de la extensión:
-
-```text
-Jiao_Translator/extension
-```
-
-6. Si quieres acceder rápidamente, fija `Jiao Translator` desde el menú de extensiones de Chrome.
-
-Importante: selecciona la carpeta `extension/`, no el archivo `manifest.json` y no la raíz del proyecto.
-
-Después de modificar archivos de la extensión, vuelve a `chrome://extensions` y haz clic en el botón de recarga de la tarjeta `Jiao Translator`. Si modificaste `content.js`, refresca también la página web donde estás probando.
-
-## Uso en páginas web
-
-1. Asegúrate de que Ollama está en ejecución.
-2. Asegúrate de que el backend FastAPI está funcionando en `127.0.0.1:8000`.
-3. Abre una página web normal, por ejemplo un artículo en inglés o una página HTML de un paper.
-4. Selecciona una frase corta.
-5. Espera a que aparezca la burbuja de traducción.
-
-Las páginas internas de Chrome, como `chrome://extensions`, no sirven para probar content scripts.
-
-## Usar el PDF Reader
-
-El visor PDF nativo de Chrome no expone de forma fiable la selección de texto a scripts normales de extensión. Por eso este proyecto incluye un lector PDF propio basado en PDF.js.
-
-Modo de uso:
-
-1. Haz clic en el icono `Jiao Translator` en la barra de herramientas de Chrome.
-2. Haz clic en `打开 PDF 阅读器`.
-3. En la página del lector, haz clic en `打开 PDF`.
-4. Elige un archivo PDF local.
-5. Lee el PDF con desplazamiento vertical.
-6. Selecciona texto en inglés dentro del PDF.
-7. Espera a que aparezca la burbuja de traducción.
-
-El PDF se abre localmente en el navegador. La extensión no sube el archivo PDF.
-
-## Controles del popup
-
-El popup de la extensión incluye:
-
-- `启用划词翻译`: activar o desactivar la traducción de texto seleccionado.
-- `打开 PDF 阅读器`: abrir el lector integrado Jiao PDF Reader.
-
-Si la traducción está desactivada, la extensión no traducirá selecciones hasta que la vuelvas a activar.
-
-## Privacidad
+### Privacidad
 
 Jiao Translator está diseñado con un enfoque local-first.
 
@@ -296,7 +234,7 @@ Jiao Translator está diseñado con un enfoque local-first.
 
 Si modificas el backend para usar una API en la nube, actualiza esta sección antes de distribuir el proyecto.
 
-## Dependencias
+### Dependencias
 
 Backend:
 
@@ -323,67 +261,13 @@ El renderizado de PDF está basado en PDF.js. La licencia incluida de PDF.js se 
 extension/pdfjs/LICENSE
 ```
 
-## Solución de problemas
+### Componente de inicio para Windows
 
-### Falla `curl http://127.0.0.1:8000/health`
+La extensión llama a un componente local mediante Chrome Native Messaging. El instalador utiliza el compilador C# de .NET Framework de Windows, escribe los archivos generados en `build/native-host` y registra el componente para el usuario actual. El acceso queda limitado al ID de extensión indicado durante la instalación.
 
-El backend no está en ejecución. Inícialo con el comando correspondiente a tu sistema.
+El componente abre una terminal, activa `server/.venv` y ejecuta `uvicorn main:app --host 127.0.0.1 --port 8000 --reload`. macOS y Linux utilizan por ahora el inicio manual.
 
-macOS / Linux:
-
-```bash
-cd server
-source .venv/bin/activate
-uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-```
-
-Windows PowerShell:
-
-```powershell
-cd server
-.\.venv\Scripts\Activate.ps1
-uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-```
-
-### La extensión aparece, pero la traducción falla
-
-Comprueba Ollama:
-
-```bash
-curl http://127.0.0.1:11434/api/version
-```
-
-Comprueba el modelo:
-
-```bash
-ollama list
-```
-
-Si hace falta:
-
-```bash
-ollama pull qwen3:4b-instruct
-```
-
-### La extensión no se actualiza después de editar archivos
-
-Abre:
-
-```text
-chrome://extensions
-```
-
-Haz clic en el botón de recarga de la tarjeta `Jiao Translator`. Si cambiaste un content script, refresca también la página web de prueba.
-
-### No funciona en el visor PDF nativo de Chrome
-
-Usa el Jiao PDF Reader integrado desde el popup. El visor PDF nativo de Chrome no se comporta como una página web normal para los scripts de selección.
-
-### El popup indica que el service worker no es válido
-
-Abre `chrome://extensions`, busca `Jiao Translator` y entra en el enlace del service worker o de errores para inspeccionar los logs. Las causas habituales son errores de sintaxis JavaScript o archivos ausentes referenciados por `manifest.json`.
-
-## Notas de desarrollo
+### Notas de desarrollo
 
 Antes de subir a GitHub, no incluyas:
 
@@ -396,26 +280,26 @@ Antes de subir a GitHub, no incluyas:
 
 El modelo Qwen se descarga y gestiona con Ollama, no con este repositorio.
 
-## Empaquetado manual
+### Empaquetado manual
 
 Para GitHub Releases, empaqueta solo la carpeta `extension`.
 
 macOS / Linux:
 
 ```bash
-zip -r jiao-translator-extension-v0.2.0.zip extension \
+zip -r jiao-translator-extension-v0.3.0.zip extension \
   -x "*.DS_Store"
 ```
 
 Windows PowerShell:
 
 ```powershell
-Compress-Archive -Path extension -DestinationPath jiao-translator-extension-v0.2.0.zip -Force
+Compress-Archive -Path extension -DestinationPath jiao-translator-extension-v0.3.0.zip -Force
 ```
 
-Los usuarios seguirán necesitando instalar Ollama, descargar el modelo e iniciar el backend local.
+El ZIP de la extensión solo contiene la parte del navegador. La instalación completa necesita `server/` y `native-host/windows/` en su estructura original; distribuye también el código fuente completo del proyecto. Cada usuario instala el modelo y el entorno virtual localmente.
 
-## Notas sobre Chrome Web Store
+### Notas sobre Chrome Web Store
 
 Este proyecto se puede enviar a Chrome Web Store, pero el paquete de la tienda debería contener solo la extensión del navegador. Los usuarios deberán ejecutar el backend local y Ollama por separado.
 
@@ -432,22 +316,21 @@ Documentación de publicación en Chrome Web Store:
 
 [https://developer.chrome.com/docs/webstore/publish/](https://developer.chrome.com/docs/webstore/publish/)
 
-## Roadmap
+### Roadmap
 
 - Añadir caché de traducción.
 - Añadir botón de copiar en la burbuja de traducción.
 - Añadir selección de modelo en configuración.
 - Añadir opciones de idioma de destino.
-- Añadir un ayudante para iniciar el backend con un clic.
 - Añadir scripts de empaquetado para GitHub y Chrome Web Store.
 
-## Referencias
+### Referencias
 
 - Descarga de Ollama: [https://ollama.com/download](https://ollama.com/download)
 - Qwen3 4B instruct en Ollama: [https://ollama.com/library/qwen3:4b-instruct](https://ollama.com/library/qwen3:4b-instruct)
 - Guía de Chrome para cargar extensiones sin empaquetar: [https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked)
 - Publicación en Chrome Web Store: [https://developer.chrome.com/docs/webstore/publish/](https://developer.chrome.com/docs/webstore/publish/)
 
-## Licencia
+### Licencia
 
 Este proyecto está licenciado bajo MIT License. Consulta [LICENSE](LICENSE).

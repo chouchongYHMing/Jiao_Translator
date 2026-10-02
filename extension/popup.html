@@ -18,6 +18,13 @@
     <span>打开 PDF 阅读器</span>
   </button>
 
+  <button id="startServer" class="reader-button" type="button">
+    <span aria-hidden="true">▶</span>
+    <span>启动本地后端</span>
+  </button>
+
+  <div id="serverStatus" class="status" role="status" aria-live="polite">正在检查后端…</div>
+
   <div id="status" class="status"></div>
 
   <script src="popup.js"></script>
