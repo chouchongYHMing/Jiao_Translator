@@ -156,6 +156,7 @@ cd server
 | 后端正常，但翻译失败 | 确认 Ollama 正在运行；执行 `ollama list` 检查是否有 `qwen3:4b-instruct` |
 | 提示“未安装本机启动组件” | 按第五步安装，确认使用的是当前扩展 ID，然后重新加载扩展 |
 | 提示缺少 `.venv` 或 Uvicorn | 重新完成第三步，确认依赖安装在 `server/.venv` 中 |
+| 一键启动提示 `uvicorn.exe` 被 Device Guard 阻止 | 更新项目后重新执行第五步的安装命令，以更新本机启动组件。新版通过虚拟环境的 `python.exe -m uvicorn` 启动；若 Python 也被策略阻止，请联系设备管理员确认允许的运行方式 |
 | 提示 8000 端口被占用 | 检查是否已有后端终端；如果是其他程序，请先停止占用端口的程序 |
 | 在 Chrome 自带 PDF 阅读器中不能翻译 | 使用扩展内置的 Jiao PDF Reader 打开 PDF |
 | 更新代码后没有变化 | 在 `chrome://extensions` 重新加载扩展，并刷新目标网页；PDF 阅读器请重新打开 |
@@ -265,7 +266,7 @@ extension/pdfjs/LICENSE
 
 扩展通过 Chrome Native Messaging 调用本机组件。安装脚本使用 Windows 的 .NET Framework C# 编译器构建程序，将文件写入 `build/native-host`，并为当前用户注册 Chrome 主机。允许调用的扩展由安装时提供的 ID 限定。
 
-点击启动按钮后，组件打开终端，激活 `server/.venv`，再运行 `uvicorn main:app --host 127.0.0.1 --port 8000 --reload`。macOS 和 Linux 目前使用手动启动方式。
+点击启动按钮后，组件打开终端，激活 `server/.venv`，再运行 `.venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload`。该命令使用虚拟环境中的 Python 加载 Uvicorn 模块。macOS 和 Linux 目前使用手动启动方式。
 
 ### 开发说明
 

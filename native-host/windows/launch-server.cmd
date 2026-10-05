@@ -9,4 +9,4 @@ if errorlevel 1 (
   echo Could not activate the virtual environment.
   exit /b 1
 )
-uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+".venv\Scripts\python.exe" -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload

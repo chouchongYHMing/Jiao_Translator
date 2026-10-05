@@ -156,6 +156,7 @@ cd server
 | El backend funciona, però falla la traducció | Mantén Ollama en execució i comprova amb `ollama list` que hi ha `qwen3:4b-instruct` |
 | La finestra indica que falta el component d'inici | Completa el pas 5 amb l'ID actual i recarrega l'extensió |
 | Falta `.venv` o Uvicorn | Repeteix el pas 3 i instal·la les dependències a `server/.venv` |
+| Device Guard bloqueja `uvicorn.exe` en iniciar amb un clic | Actualitza el projecte i repeteix l'instal·lador del pas 5. Ara s'utilitza `python.exe -m uvicorn` de l'entorn virtual; si la política també bloqueja Python, consulta l'administrador de l'equip sobre una manera autoritzada d'executar-lo |
 | El port 8000 està ocupat | Comprova si ja hi ha un backend obert; atura una altra aplicació que ocupi el port si cal |
 | No tradueix al visor PDF de Chrome | Obre el fitxer a Jiao PDF Reader |
 | No apareixen els canvis després d'actualitzar | Recarrega l'extensió a `chrome://extensions`, actualitza la pàgina i torna a obrir el lector PDF |
@@ -265,7 +266,7 @@ extension/pdfjs/LICENSE
 
 L'extensió crida un component local mitjançant Chrome Native Messaging. L'instal·lador utilitza el compilador C# de .NET Framework de Windows, escriu els fitxers generats a `build/native-host` i registra el component per a l'usuari actual. L'accés queda limitat a l'ID d'extensió indicat durant la instal·lació.
 
-El component obre un terminal, activa `server/.venv` i executa `uvicorn main:app --host 127.0.0.1 --port 8000 --reload`. macOS i Linux utilitzen de moment l'inici manual.
+El component obre un terminal, activa `server/.venv` i executa `.venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload`. Així carrega el mòdul Uvicorn amb l'intèrpret Python de l'entorn virtual. macOS i Linux utilitzen de moment l'inici manual.
 
 ### Notes de desenvolupament
 

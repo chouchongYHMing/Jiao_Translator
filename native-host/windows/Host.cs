@@ -84,12 +84,12 @@ internal static class Host
         string directory = AppDomain.CurrentDomain.BaseDirectory;
         string server = Path.GetFullPath(Path.Combine(directory, "..", "..", "server"));
         string activate = Path.Combine(server, ".venv", "Scripts", "activate.bat");
-        string uvicorn = Path.Combine(server, ".venv", "Scripts", "uvicorn.exe");
+        string python = Path.Combine(server, ".venv", "Scripts", "python.exe");
         string launcher = Path.Combine(directory, "launch-server.cmd");
 
-        if (!File.Exists(activate) || !File.Exists(uvicorn))
+        if (!File.Exists(activate) || !File.Exists(python))
         {
-            WriteMessage(new { ok = false, error = "Missing server/.venv or uvicorn. Create the virtual environment and install server/requirements.txt first." });
+            WriteMessage(new { ok = false, error = "Missing server/.venv Python or activation script. Create the virtual environment and install server/requirements.txt first." });
             return;
         }
         if (!File.Exists(launcher))

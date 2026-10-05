@@ -156,6 +156,7 @@ cd server
 | The backend is running but translation fails | Keep Ollama running; use `ollama list` to check for `qwen3:4b-instruct` |
 | The popup says the native launcher is not installed | Complete step 5 with the current extension ID and reload the extension |
 | The launcher reports a missing `.venv` or Uvicorn | Repeat step 3 and ensure dependencies are installed in `server/.venv` |
+| Device Guard blocks `uvicorn.exe` during one-click startup | Update the project and repeat the installer in step 5 to refresh the launcher. It now uses the virtual environment's `python.exe -m uvicorn`; if policy also blocks Python, ask your device administrator for an approved way to run it |
 | Port 8000 is already in use | Check for an existing backend terminal; stop another application using the port if necessary |
 | Translation does not work in Chrome's PDF viewer | Open the file in the extension's Jiao PDF Reader |
 | Changes do not appear after updating | Reload the extension at `chrome://extensions`, refresh the web page, and reopen the PDF reader |
@@ -265,7 +266,7 @@ extension/pdfjs/LICENSE
 
 The extension calls a local host through Chrome Native Messaging. The installer uses the Windows .NET Framework C# compiler, writes the generated files to `build/native-host`, and registers the host for the current user. Access is limited to the extension ID supplied during installation.
 
-The host opens a terminal, activates `server/.venv`, and runs `uvicorn main:app --host 127.0.0.1 --port 8000 --reload`. macOS and Linux currently use manual startup.
+The host opens a terminal, activates `server/.venv`, and runs `.venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload`. This loads the Uvicorn module with the virtual environment's Python interpreter. macOS and Linux currently use manual startup.
 
 ### Development Notes
 
